@@ -125,7 +125,7 @@ texto = 'GaaFAEaDGC '
 interpretador = MusicInterpreter(0,0,0,-2,0,0,0)
 partitura = interpretador.converteCaractere(texto)
 
-#produzir o mid
+#PRODUZ O MID E SALVA 
 arquivoMid = mido.MidiFile() 
 faixa1 = mido.MidiTrack()
 arquivoMid.tracks.append(faixa1)
