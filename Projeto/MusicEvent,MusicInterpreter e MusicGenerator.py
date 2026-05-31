@@ -176,7 +176,7 @@ class MusicGenerator:
 
                     lista_de_faixas[f"faixa{i}"].append(mido.Message('note_off', note=evento.nota, velocity=100, time=480))    #em note_off, o time é o tempo que dura a nota
 
-        arquivoMid.save('testeLogica.mid')
+        arquivoMid.save('faixa_gerada.mid')
 
 
 #teste
