@@ -4,8 +4,8 @@ import time
 import pygame
 pygame.mixer.init()
 try:
-    pygame.mixer.music.load('testeLogica.mid')
-    print("Tocando: {testeLogica.mid}")
+    pygame.mixer.music.load('faixa_gerada.mid')
+    print("Tocando: {faixa_gerada.mid}")
     pygame.mixer.music.play()
 except pygame.error as e:
         print(f"Erro!!!")

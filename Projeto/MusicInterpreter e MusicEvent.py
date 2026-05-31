@@ -140,8 +140,8 @@ for evento in partitura:
     faixa1.append(mido.Message('note_off', note=evento.nota, velocity=100, time=480))    #note_off, o time é o tempo que dura a nota
 
 
-mid = mido.MidiFile('testeLogica.mid')
-arquivoMid.save('testeLogica.mid')
+#mid = mido.MidiFile('faixa_gerada.mid')
+arquivoMid.save('faixa_gerada.mid')
 
 
 
