@@ -1,0 +1,15 @@
+from MusicEvent_MusicInterpreter_e_MusicGenerator import MusicInterpreter
+from MusicPlayer import MusicPlayer
+
+texto = "GaaFAEaDGC "
+
+interpretador = MusicInterpreter(0, 0, 0, -2, 0, 0, 0)
+partitura = interpretador.converteCaractere(texto)
+
+print(f"eventos gerados: {len(partitura)}")
+
+player = MusicPlayer()
+player.gerar_midi(partitura)
+player.play()
+player.aguardar_fim()
+player.encerrar()
