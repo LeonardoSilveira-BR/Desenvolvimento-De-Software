@@ -7,6 +7,7 @@ from Settings import Settings
 from MusicInterpreter import MusicInterpreter
 from MusicGenerator import MusicGenerator
 from MusicPlayer import MusicPlayer
+from SaveAudio import SaveAudio
 
 app = Flask(__name__)
 CORS(app)
@@ -53,13 +54,28 @@ def UpdateText():
 
     texto_reader.readText(data["text"])
 
-    return "", 204
+    return jsonify({
+        "mensagem": "Texto atualizado com sucesso."
+    }), 200
+
+
+@app.route('/Text', methods=['DELETE'])
+def ClearText():
+    """
+    Limpa o texto armazenado.
+    """
+
+    texto_reader.readText("")
+
+    return jsonify({
+        "mensagem": "Texto removido."
+    }), 200
 
 
 @app.route('/Text/Load', methods=['POST'])
 def LoadText():
     """
-    Carrega um arquivo .txt.
+    Carrega um arquivo TXT.
     """
 
     arquivo = request.files.get("file")
@@ -95,7 +111,7 @@ def LoadText():
 @app.route('/Settings', methods=['GET'])
 def GetSettings():
     """
-    Retorna todas as configurações atuais.
+    Retorna as configurações atuais.
     """
 
     return jsonify({
@@ -132,7 +148,9 @@ def UpdateSettings():
     if "volumeGeral" in data:
         settings.setVolumeGeral(data["volumeGeral"])
 
-    return "", 204
+    return jsonify({
+        "mensagem": "Configurações atualizadas."
+    }), 200
 
 
 # ==================================================
@@ -191,6 +209,12 @@ def UpdateVoice(voice_id):
         }), 404
 
     data = request.get_json()
+
+    if not data:
+        return jsonify({
+            "erro": "Dados inválidos."
+        }), 400
+
     voz = settings.vozes[voice_id]
 
     if "volume" in data:
@@ -205,7 +229,9 @@ def UpdateVoice(voice_id):
     if "atraso" in data:
         voz.setAtraso(data["atraso"])
 
-    return "", 204
+    return jsonify({
+        "mensagem": f"Voz {voice_id} atualizada."
+    }), 200
 
 
 # ==================================================
@@ -215,7 +241,7 @@ def UpdateVoice(voice_id):
 @app.route('/MusicInterpreter/Parse', methods=['POST'])
 def ParseText():
     """
-    Converte o texto em eventos musicais.
+    Converte texto em eventos musicais.
     """
 
     global eventos_gerados
@@ -239,7 +265,7 @@ def ParseText():
 @app.route('/MusicInterpreter/Events', methods=['GET'])
 def GetEvents():
     """
-    Retorna os eventos musicais gerados.
+    Retorna os eventos gerados.
     """
 
     return jsonify([
@@ -281,6 +307,7 @@ def GenerateMusic():
         )
 
         return jsonify({
+            "mensagem": "MIDI gerado com sucesso.",
             "arquivo": "faixa_gerada.mid"
         }), 200
 
@@ -293,13 +320,37 @@ def GenerateMusic():
 @app.route('/MusicGenerator/Download', methods=['GET'])
 def DownloadMidi():
     """
-    Download do MIDI gerado.
+    Download do arquivo MIDI.
     """
 
     return send_file(
         "faixa_gerada.mid",
         as_attachment=True
     )
+
+
+# ==================================================
+# SAVE AUDIO
+# ==================================================
+
+@app.route('/SaveAudio', methods=['POST'])
+def SaveGeneratedAudio():
+    """
+    Salva o arquivo MIDI gerado.
+    """
+
+    try:
+        salvador = SaveAudio()
+        salvador.salvar_com_local()
+
+        return jsonify({
+            "mensagem": "Arquivo salvo com sucesso."
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            "erro": str(e)
+        }), 500
 
 
 # ==================================================
@@ -314,7 +365,9 @@ def Play():
 
     player.play()
 
-    return "", 204
+    return jsonify({
+        "mensagem": "Reprodução iniciada."
+    }), 200
 
 
 @app.route('/MusicPlayer/Pause', methods=['POST'])
@@ -325,7 +378,9 @@ def Pause():
 
     player.pause()
 
-    return "", 204
+    return jsonify({
+        "mensagem": "Reprodução pausada."
+    }), 200
 
 
 @app.route('/MusicPlayer/Resume', methods=['POST'])
@@ -336,7 +391,9 @@ def Resume():
 
     player.play()
 
-    return "", 204
+    return jsonify({
+        "mensagem": "Reprodução retomada."
+    }), 200
 
 
 @app.route('/MusicPlayer/Stop', methods=['POST'])
@@ -347,7 +404,9 @@ def Stop():
 
     player.stop()
 
-    return "", 204
+    return jsonify({
+        "mensagem": "Reprodução parada."
+    }), 200
 
 
 @app.route('/MusicPlayer/Restart', methods=['POST'])
@@ -358,7 +417,9 @@ def Restart():
 
     player.restart()
 
-    return "", 204
+    return jsonify({
+        "mensagem": "Reprodução reiniciada."
+    }), 200
 
 
 @app.route('/MusicPlayer/End', methods=['POST'])
@@ -369,13 +430,15 @@ def End():
 
     player.encerrar()
 
-    return "", 204
+    return jsonify({
+        "mensagem": "Player encerrado."
+    }), 200
 
 
 @app.route('/MusicPlayer/Status', methods=['GET'])
 def GetPlayerStatus():
     """
-    Retorna o estado do player.
+    Retorna o estado atual do player.
     """
 
     return jsonify({

@@ -222,7 +222,7 @@ class MusicInterpreter:
         resto = self.faixaAtual % CICLO_VOZES      #resto da divisão da linha por 4, para manter as vozes nos 4 casos
         if self.user_settings:
             voz = self.user_settings.vozes[resto]             
-        self.bpmAtual = BPM_INICIAL         #getBPM()  pega bpm estabelecido no inicio, pelo usuario  FALTA
+        self.bpmAtual = self.user_settings.bpmAtual         #getBPM()  pega bpm estabelecido no inicio, pelo usuario  FALTA
         match resto:
             case 0:    
                 self.oitavaAtual = OITAVA_INICIAL
