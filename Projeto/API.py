@@ -1,409 +1,395 @@
-from http import HTTPStatus
-from flask import Flask, request, send_file
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from flasgger import Swagger
 
+from Text import TextReader, TextLoadFile
+from Settings import Settings
+from MusicInterpreter import MusicInterpreter
+from MusicGenerator import MusicGenerator
+from MusicPlayer import MusicPlayer
+
 app = Flask(__name__)
 CORS(app)
+swagger = Swagger(app)
 
-swagger = Swagger(app)=
+# ==================================================
+# OBJETOS GLOBAIS
+# ==================================================
+
+texto_reader = TextReader()
+settings = Settings()
+player = MusicPlayer()
+generator = MusicGenerator()
+
+eventos_gerados = []
 
 
-# =========================
-# TEXTO
-# =========================
+# ==================================================
+# TEXT
+# ==================================================
 
-@app.route('/text', methods=['GET'])
+@app.route('/Text', methods=['GET'])
 def GetText():
     """
-    Get current text
-    ---
-    responses:
-      200:
-        description: Current text
+    Retorna o texto atualmente carregado.
     """
-    pass
+    return jsonify({
+        "text": texto_reader.getText()
+    }), 200
 
 
-@app.route('/text', methods=['PUT'])
+@app.route('/Text', methods=['PUT'])
 def UpdateText():
     """
-    Update text
-    ---
-    parameters:
-      - in: body
-        name: body
-        required: true
-    responses:
-      204:
-        description: Success
-      400:
-        description: Invalid data
+    Atualiza o texto armazenado.
     """
-    pass
+
+    data = request.get_json()
+
+    if not data or "text" not in data:
+        return jsonify({
+            "erro": "Campo 'text' não informado."
+        }), 400
+
+    texto_reader.readText(data["text"])
+
+    return "", 204
 
 
-@app.route('/text/load', methods=['POST'])
-def LoadTextFile():
+@app.route('/Text/Load', methods=['POST'])
+def LoadText():
     """
-    Load TXT file
-    ---
-    consumes:
-      - multipart/form-data
-    responses:
-      200:
-        description: File loaded
-      400:
-        description: Invalid file
+    Carrega um arquivo .txt.
     """
-    pass
+
+    arquivo = request.files.get("file")
+
+    if not arquivo:
+        return jsonify({
+            "erro": "Arquivo não enviado."
+        }), 400
+
+    caminho = "temp.txt"
+    arquivo.save(caminho)
+
+    try:
+        loader = TextLoadFile(caminho)
+        texto = loader.loadFile()
+
+        texto_reader.readText(texto)
+
+        return jsonify({
+            "text": texto
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            "erro": str(e)
+        }), 400
 
 
-@app.route('/text/save', methods=['POST'])
-def SaveTextFile():
-    """
-    Save TXT file
-    ---
-    responses:
-      204:
-        description: Success
-    """
-    pass
+# ==================================================
+# SETTINGS
+# ==================================================
 
-
-# =========================
-# CONFIGURAÇÕES
-# =========================
-
-@app.route('/settings', methods=['GET'])
+@app.route('/Settings', methods=['GET'])
 def GetSettings():
     """
-    Get current settings
-    ---
-    responses:
-      200:
-        description: Settings
+    Retorna todas as configurações atuais.
     """
-    pass
+
+    return jsonify({
+        "bpm": settings.bpmAtual,
+        "voices": [
+            {
+                "numero": voz.numero,
+                "oitava": voz.oitava,
+                "volume": voz.volume,
+                "instrumento": voz.instrumento,
+                "atraso": voz.atraso
+            }
+            for voz in settings.vozes
+        ]
+    }), 200
 
 
-@app.route('/settings', methods=['PUT'])
+@app.route('/Settings', methods=['PUT'])
 def UpdateSettings():
     """
-    Update settings
-    ---
-    responses:
-      204:
-        description: Success
-      400:
-        description: Invalid data
+    Atualiza BPM e volume geral.
     """
-    pass
+
+    data = request.get_json()
+
+    if not data:
+        return jsonify({
+            "erro": "Dados inválidos."
+        }), 400
+
+    if "bpm" in data:
+        settings.setBPM(data["bpm"])
+
+    if "volumeGeral" in data:
+        settings.setVolumeGeral(data["volumeGeral"])
+
+    return "", 204
 
 
-# =========================
-# INSTRUMENTOS GM
-# =========================
+# ==================================================
+# VOICE
+# ==================================================
 
-@app.route('/instruments', methods=['GET'])
-def GetInstruments():
-    """
-    Get General MIDI instruments
-    ---
-    responses:
-      200:
-        description: Instrument list
-    """
-    pass
-
-
-@app.route('/instruments/<int:instrument_id>', methods=['GET'])
-def GetInstrument(instrument_id: int):
-    """
-    Get instrument
-    ---
-    parameters:
-      - name: instrument_id
-        in: path
-        type: integer
-        required: true
-    responses:
-      200:
-        description: Instrument
-      404:
-        description: Not found
-    """
-    pass
-
-
-# =========================
-# VOZES (FASE 2)
-# =========================
-
-@app.route('/voices', methods=['GET'])
+@app.route('/Voice', methods=['GET'])
 def GetVoices():
     """
-    Get all voices
-    ---
-    responses:
-      200:
-        description: Voice list
+    Retorna todas as vozes.
     """
-    pass
+
+    return jsonify([
+        {
+            "numero": voz.numero,
+            "oitava": voz.oitava,
+            "volume": voz.volume,
+            "instrumento": voz.instrumento,
+            "atraso": voz.atraso
+        }
+        for voz in settings.vozes
+    ]), 200
 
 
-@app.route('/voices/<int:voice_id>', methods=['GET'])
-def GetVoice(voice_id: int):
+@app.route('/Voice/<int:voice_id>', methods=['GET'])
+def GetVoice(voice_id):
     """
-    Get voice
-    ---
-    parameters:
-      - name: voice_id
-        in: path
-        type: integer
-        required: true
-    responses:
-      200:
-        description: Voice
-      404:
-        description: Not found
+    Retorna uma voz específica.
     """
-    pass
+
+    if voice_id < 0 or voice_id >= len(settings.vozes):
+        return jsonify({
+            "erro": "Voz não encontrada."
+        }), 404
+
+    voz = settings.vozes[voice_id]
+
+    return jsonify({
+        "numero": voz.numero,
+        "oitava": voz.oitava,
+        "volume": voz.volume,
+        "instrumento": voz.instrumento,
+        "atraso": voz.atraso
+    }), 200
 
 
-# =========================
-# INTERPRETADOR
-# =========================
+@app.route('/Voice/<int:voice_id>', methods=['PUT'])
+def UpdateVoice(voice_id):
+    """
+    Atualiza uma voz específica.
+    """
 
-@app.route('/interpreter/parse', methods=['POST'])
+    if voice_id < 0 or voice_id >= len(settings.vozes):
+        return jsonify({
+            "erro": "Voz não encontrada."
+        }), 404
+
+    data = request.get_json()
+    voz = settings.vozes[voice_id]
+
+    if "volume" in data:
+        voz.setVolume(data["volume"])
+
+    if "oitava" in data:
+        voz.setOitava(data["oitava"])
+
+    if "instrumento" in data:
+        voz.setInstrumento(data["instrumento"])
+
+    if "atraso" in data:
+        voz.setAtraso(data["atraso"])
+
+    return "", 204
+
+
+# ==================================================
+# MUSIC INTERPRETER
+# ==================================================
+
+@app.route('/MusicInterpreter/Parse', methods=['POST'])
 def ParseText():
     """
-    Parse text into music events
-    ---
-    responses:
-      200:
-        description: Parsed events
-      400:
-        description: Invalid text
+    Converte o texto em eventos musicais.
     """
-    pass
+
+    global eventos_gerados
+
+    texto = texto_reader.getText()
+
+    if not texto:
+        return jsonify({
+            "erro": "Texto vazio."
+        }), 400
+
+    interpretador = MusicInterpreter(settings)
+
+    eventos_gerados = interpretador.converteCaractere(texto)
+
+    return jsonify({
+        "eventosGerados": len(eventos_gerados)
+    }), 200
 
 
-@app.route('/interpreter/events', methods=['GET'])
+@app.route('/MusicInterpreter/Events', methods=['GET'])
 def GetEvents():
     """
-    Get generated events
-    ---
-    responses:
-      200:
-        description: Event list
+    Retorna os eventos musicais gerados.
     """
-    pass
+
+    return jsonify([
+        {
+            "nota": evento.nota,
+            "instrumento": evento.instrumento,
+            "oitava": evento.oitava,
+            "volume": evento.volume,
+            "tempo_de_atraso": evento.tempo_de_atraso,
+            "bpm": evento.bpm,
+            "faixa": evento.faixa,
+            "indice": evento.indice
+        }
+        for evento in eventos_gerados
+    ]), 200
 
 
-# =========================
-# FUGA
-# =========================
+# ==================================================
+# MUSIC GENERATOR
+# ==================================================
 
-@app.route('/fugue/process', methods=['POST'])
-def ProcessFugue():
-    """
-    Process voices as fugue
-    ---
-    responses:
-      200:
-        description: Fugue generated
-      400:
-        description: Invalid text
-    """
-    pass
-
-
-@app.route('/fugue/preview', methods=['GET'])
-def PreviewFugue():
-    """
-    Preview generated fugue
-    ---
-    responses:
-      200:
-        description: Fugue preview
-    """
-    pass
-
-
-# =========================
-# PARTITURA
-# =========================
-
-@app.route('/music/score', methods=['GET'])
-def GetScore():
-    """
-    Get score
-    ---
-    responses:
-      200:
-        description: Score
-    """
-    pass
-
-
-@app.route('/music/generate', methods=['POST'])
+@app.route('/MusicGenerator/Generate', methods=['POST'])
 def GenerateMusic():
     """
-    Generate music
-    ---
-    responses:
-      200:
-        description: Music generated
-      400:
-        description: Invalid text
+    Gera o arquivo MIDI.
     """
-    pass
+
+    texto = texto_reader.getText()
+
+    if not texto:
+        return jsonify({
+            "erro": "Texto vazio."
+        }), 400
+
+    try:
+        generator.produz_MIDI(
+            texto=texto,
+            user_settings=settings
+        )
+
+        return jsonify({
+            "arquivo": "faixa_gerada.mid"
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            "erro": str(e)
+        }), 500
 
 
-@app.route('/music/score', methods=['DELETE'])
-def ClearScore():
-    """
-    Clear score
-    ---
-    responses:
-      204:
-        description: Success
-    """
-    pass
-
-
-# =========================
-# PLAYER
-# =========================
-
-@app.route('/player/play', methods=['POST'])
-def Play():
-    """
-    Start playback
-    ---
-    responses:
-      204:
-        description: Success
-    """
-    pass
-
-
-@app.route('/player/pause', methods=['POST'])
-def Pause():
-    """
-    Pause playback
-    ---
-    responses:
-      204:
-        description: Success
-    """
-    pass
-
-
-@app.route('/player/resume', methods=['POST'])
-def Resume():
-    """
-    Resume playback
-    ---
-    responses:
-      204:
-        description: Success
-    """
-    pass
-
-
-@app.route('/player/stop', methods=['POST'])
-def Stop():
-    """
-    Stop playback
-    ---
-    responses:
-      204:
-        description: Success
-    """
-    pass
-
-
-@app.route('/player/restart', methods=['POST'])
-def Restart():
-    """
-    Restart playback
-    ---
-    responses:
-      204:
-        description: Success
-    """
-    pass
-
-
-@app.route('/player/end', methods=['POST'])
-def End():
-    """
-    End playback
-    ---
-    responses:
-      204:
-        description: Success
-    """
-    pass
-
-
-@app.route('/player/status', methods=['GET'])
-def GetPlayerStatus():
-    """
-    Get player status
-    ---
-    responses:
-      200:
-        description: Player state
-    """
-    pass
-
-
-# =========================
-# MIDI
-# =========================
-
-@app.route('/midi/generate', methods=['POST'])
-def GenerateMidi():
-    """
-    Generate MIDI file
-    ---
-    responses:
-      200:
-        description: MIDI generated
-      400:
-        description: Invalid data
-    """
-    pass
-
-
-@app.route('/midi/download', methods=['GET'])
+@app.route('/MusicGenerator/Download', methods=['GET'])
 def DownloadMidi():
     """
-    Download MIDI file
-    ---
-    responses:
-      200:
-        description: MIDI file
-      404:
-        description: Not found
+    Download do MIDI gerado.
     """
-    pass
+
+    return send_file(
+        "faixa_gerada.mid",
+        as_attachment=True
+    )
 
 
-@app.route('/midi/save', methods=['POST'])
-def SaveMidi():
-    """
-    Save MIDI file
-    ---
-    responses:
-      204:
-        description: Success
-    """
-    pass
+# ==================================================
+# MUSIC PLAYER
+# ==================================================
 
+@app.route('/MusicPlayer/Play', methods=['POST'])
+def Play():
+    """
+    Inicia a reprodução.
+    """
+
+    player.play()
+
+    return "", 204
+
+
+@app.route('/MusicPlayer/Pause', methods=['POST'])
+def Pause():
+    """
+    Pausa a reprodução.
+    """
+
+    player.pause()
+
+    return "", 204
+
+
+@app.route('/MusicPlayer/Resume', methods=['POST'])
+def Resume():
+    """
+    Retoma a reprodução.
+    """
+
+    player.play()
+
+    return "", 204
+
+
+@app.route('/MusicPlayer/Stop', methods=['POST'])
+def Stop():
+    """
+    Para a reprodução.
+    """
+
+    player.stop()
+
+    return "", 204
+
+
+@app.route('/MusicPlayer/Restart', methods=['POST'])
+def Restart():
+    """
+    Reinicia a reprodução.
+    """
+
+    player.restart()
+
+    return "", 204
+
+
+@app.route('/MusicPlayer/End', methods=['POST'])
+def End():
+    """
+    Encerra o player.
+    """
+
+    player.encerrar()
+
+    return "", 204
+
+
+@app.route('/MusicPlayer/Status', methods=['GET'])
+def GetPlayerStatus():
+    """
+    Retorna o estado do player.
+    """
+
+    return jsonify({
+        "tocando": player.esta_tocando()
+    }), 200
+
+
+# ==================================================
+# EXECUÇÃO
+# ==================================================
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(
+        host='0.0.0.0',
+        port=5000,
+        debug=True
+    )
