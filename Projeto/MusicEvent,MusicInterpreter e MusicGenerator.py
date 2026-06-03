@@ -1,3 +1,6 @@
+
+#FOI SEPARADO EM DIFERENTES ARQUIVOS!!
+
 import mido
 
 #instrumentos
