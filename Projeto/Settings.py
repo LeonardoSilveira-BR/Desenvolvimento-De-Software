@@ -142,7 +142,7 @@ class Settings:
             print(
                 f"Erro: Número de voz {voz} inválido. Deve ser entre 0 e {len(self.vozes)-1}.")
 
-def settings(self):
+    def settings(self):
         while True:
             print("\n1 - Alterar BPM")
             print("2 - Alterar volume geral")
