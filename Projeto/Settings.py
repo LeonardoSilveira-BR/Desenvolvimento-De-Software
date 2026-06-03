@@ -142,38 +142,39 @@ class Settings:
             print(
                 f"Erro: Número de voz {voz} inválido. Deve ser entre 0 e {len(self.vozes)-1}.")
 
+def settings(self):
+        while True:
+            print("\n1 - Alterar BPM")
+            print("2 - Alterar volume geral")
+            print("3 - Trocar instrumento")
+            print("4 - Mostrar vozes")
+            print("0 - Sair")
+            print(f"instrumento escolhido: {self.vozes[0].instrumento}")
+            opcao = input("Escolha: ")
 
-# ----Testes ----
-settings = Settings()
+            if opcao == "1":
+                bpm = int(input("Novo BPM: "))
+                self.setBPM(bpm)
 
-while True:
-    print("\n1 - Alterar BPM")
-    print("2 - Alterar volume geral")
-    print("3 - Trocar instrumento")
-    print("4 - Mostrar vozes")
-    print("0 - Sair")
+            elif opcao == "2":
+                volume = int(input("Novo volume Geral: "))
+                self.setVolumeGeral(volume)
 
-    opcao = input("Escolha: ")
+            elif opcao == "3":
+                print("opcao3")
+                voz = int(input("Voz (0-3): "))
+                instrumento = int(input("Instrumento GM: "))
+                self.trocarInstrumento(voz, instrumento)
 
-    if opcao == "1":
-        bpm = int(input("Novo BPM: "))
-        settings.setBPM(bpm)
 
-    elif opcao == "2":
-        volume = int(input("Novo volume Geral: "))
-        settings.setVolumeGeral(volume)
+            elif opcao == "4":
+                print(f"\nBPM Atual: {self.bpmAtual}")
+                for i in range(len(self.vozes)):
+                    v = self.vozes[i]
+                    # Ajustado para usar as funções getVolume() e o atributo correto do instrumento
+                    print(f"Voz {i} | Vol={v.getVolume()} | Inst={v.instrumento}")
 
-    elif opcao == "3":
-        voz = int(input("Voz (0-3): "))
-        instrumento = int(input("Instrumento GM: "))
-        settings.trocarInstrumento(voz, instrumento)
+            elif opcao == "0":
+                break
 
-    elif opcao == "4":
-        print(f"\nBPM Atual: {settings.bpmAtual}")
-        for i in range(len(settings.vozes)):
-            v = settings.vozes[i]
-            # Ajustado para usar as funções getVolume() e o atributo correto do instrumento
-            print(f"Voz {i} | Vol={v.getVolume()} | Inst={v.instrumento}")
 
-    elif opcao == "0":
-        break
