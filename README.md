@@ -77,7 +77,7 @@ timidity --version
 Clone o repositório:
 
 ```bash
-git clone <url-do-repositório>
+git clone (https://github.com/LeonardoSilveira-BR/Desenvolvimento-De-Software.git)
 ```
 
 Entre na pasta do projeto:
@@ -95,58 +95,52 @@ pip install flasgger
 pip install mido
 ```
 
-Ou:
-
-```bash
-pip install -r requirements.txt
-```
-
 ---
 
 # Como Executar
 
 Inicie a API:
 
-```bash
-python API.py
-```
-
-A API ficará disponível em:
-
-```
-http://localhost:5000
-```
-
-Em seguida, abra o arquivo:
-
-```
-Frontend/index.html
-```
-
-em um navegador.
-
----
+      ```bash
+      python API.py
+      ```
+      
+      A API ficará disponível em:
+      
+      ```
+      http://localhost:5000
+      ```
+      
+      Em seguida, abra o arquivo:
+      
+      ```
+      Frontend/index.html
+      ```
+      
+      em um navegador.
+      
+      ---
 
 # Fluxo de Funcionamento
 
-```
-Texto
-   │
-   ▼
-MusicInterpreter
-   │
-   ▼
-Eventos Musicais
-   │
-   ▼
-MusicGenerator
-   │
-   ▼
-Arquivo MIDI
-   │
-   ▼
-MusicPlayer
-```
+      ```
+      Texto
+         │
+         ▼
+      MusicInterpreter
+         │
+         ▼
+      Eventos Musicais
+         │
+         ▼
+      MusicGenerator
+         │
+         ▼
+      Arquivo MIDI
+         │
+         ▼
+      MusicPlayer
+      ```
 
 ---
 
