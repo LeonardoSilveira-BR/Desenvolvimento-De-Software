@@ -19,7 +19,7 @@ swagger = Swagger(app)
 
 texto_reader = TextReader()
 settings = Settings()
-player = MusicPlayer()
+player = MusicPlayer(settings)
 generator = MusicGenerator()
 
 eventos_gerados = []
@@ -317,17 +317,20 @@ def GenerateMusic():
         }), 500
 
 
+import os
+
 @app.route('/MusicGenerator/Download', methods=['GET'])
 def DownloadMidi():
-    """
-    Download do arquivo MIDI.
-    """
+
+    if not os.path.exists("faixa_gerada.mid"):
+        return jsonify({
+            "erro": "Arquivo MIDI não encontrado."
+        }), 404
 
     return send_file(
         "faixa_gerada.mid",
         as_attachment=True
     )
-
 
 # ==================================================
 # SAVE AUDIO
@@ -357,18 +360,21 @@ def SaveGeneratedAudio():
 # MUSIC PLAYER
 # ==================================================
 
+import os
+
 @app.route('/MusicPlayer/Play', methods=['POST'])
 def Play():
-    """
-    Inicia a reprodução.
-    """
+
+    if not os.path.exists("faixa_gerada.mid"):
+        return jsonify({
+            "erro": "Gere a música antes de reproduzi-la."
+        }), 400
 
     player.play()
 
     return jsonify({
         "mensagem": "Reprodução iniciada."
     }), 200
-
 
 @app.route('/MusicPlayer/Pause', methods=['POST'])
 def Pause():
@@ -389,7 +395,7 @@ def Resume():
     Retoma a reprodução.
     """
 
-    player.play()
+    player.resume()
 
     return jsonify({
         "mensagem": "Reprodução retomada."
@@ -454,5 +460,5 @@ if __name__ == '__main__':
     app.run(
         host='0.0.0.0',
         port=5000,
-        debug=True
+        debug=False
     )

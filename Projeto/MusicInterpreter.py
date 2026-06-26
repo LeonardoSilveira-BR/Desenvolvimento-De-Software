@@ -1,9 +1,10 @@
-#class MusicEvent, class BPM e Class MusicInterpreter
-from Settings import Settings 
+from Settings import Settings
 
+# ==========================
+# Instrumentos
+# ==========================
 
-#instrumentos
-PIANO = 0                          
+PIANO = 0
 CRAVO = 6
 TUBULAR_BELLS = 15
 ORGAO = 20
@@ -14,31 +15,54 @@ GAITA_DE_FOLES = 110
 ONDAS_MAR = 123
 AGOGO = 114
 
-#notas
+# ==========================
+# Notas
+# ==========================
+
 LA = 45
 SI = 47
-DO = 36        
+DO = 36
 RE = 38
 MI = 40
 FA = 41
 SOL = 43
+
 SEMITOM = 1
 DURACAO_NOTA = 480
 
-OITAVA_INICIAL = 36     #oitava 6 = 36
-TAMANHO_OITAVA = 12                       
+# ==========================
+# Configurações
+# ==========================
+
+OITAVA_INICIAL = 36
+TAMANHO_OITAVA = 12
 OITAVA_MAXIMA = 73
-VOLUME_INICIAL = 100 
+
+VOLUME_INICIAL = 100
 VOLUME_MAXIMO = 127
-DECRESCIMO_VOLUME = 20
+
 BPM_INICIAL = 120
+
 DECRESCIMO_BPM = -10
 ACRESCIMO_BPM = 10
 
 CICLO_VOZES = 4
 
+
 class MusicEvent:
-    def __init__(self, nota, instrumento, oitava, volume, tempo_de_atraso, bpm, faixa, indice):
+
+    def __init__(
+        self,
+        nota,
+        instrumento,
+        oitava,
+        volume,
+        tempo_de_atraso,
+        bpm,
+        faixa,
+        indice
+    ):
+
         self.nota = nota
         self.instrumento = instrumento
         self.oitava = oitava
@@ -46,184 +70,277 @@ class MusicEvent:
         self.tempo_de_atraso = tempo_de_atraso
         self.bpm = bpm
         self.faixa = faixa
-        self.indice = indice  
+        self.indice = indice
+
 
 class BPM:
-    def __init__(self, aumenta_bpm, faixa_novo_bpm, posicao_novo_bpm, novoBPM):
+
+    def __init__(
+        self,
+        aumenta_bpm,
+        faixa_novo_bpm,
+        posicao_novo_bpm,
+        novoBPM
+    ):
+
         self.aumenta_bpm = aumenta_bpm
         self.faixa_novo_bpm = faixa_novo_bpm
         self.posicao_novo_bpm = posicao_novo_bpm
         self.novoBPM = novoBPM
 
+
 class MusicInterpreter:
-    """  classe responsável por converter os caracteres do texto em eventos musicais """
+    """
+    Converte texto em eventos musicais.
+    """
 
     def __init__(self, user_settings=None):
+
         self.notaAtual = 0
         self.instrumentoAtual = 0
         self.volumeAtual = 0
         self.oitavaAtual = 0
+
         self.tempo_de_atraso = 0
+
         self.bpmAtual = 0
+
         self.faixaAtual = 0
         self.numero_faixas = 0
-        self.lista_de_eventos: list[MusicEvent] = []
-        self.lista_alteracoes: list[BPM] = []
-         # settings é opcional — se não for passado, usa os valores dos eventos diretamente
+
+        self.lista_de_eventos = []
+        self.lista_alteracoes = []
+
         if user_settings is None:
             self.user_settings = Settings()
         else:
             self.user_settings = user_settings
 
-    # ──────────────────────────────────────────────────────────────────────
-    # 
-    # ──────────────────────────────────────────────────────────────────────
+    def converteCaractere(self, texto):
 
-    def converteCaractere(self, texto): 
-        """
-        Converte os caracteres do texto para eventos musicais seguindo o mapeamento estabelecido
-        retorna todos eventos em uma lista_de_eventos/partitura
-        """
-        
+        # limpa completamente os dados da geração anterior
+
+        self.lista_de_eventos = []
+        self.lista_alteracoes = []
+
+        self.faixaAtual = 0
+        self.numero_faixas = 0
+
         self.novaLinha()
 
-        indice_evento = 0  
-        caractereAnterior = 0
-        valor_atraso = " "
+        indice_evento = 0
+
+        caractereAnterior = ""
+
+        valor_atraso = ""
+
         atraso = False
-        bpm = BPM(False, 0,0,0)
-       
+
         for i, caractereAtual in enumerate(texto):
-            silence = False        #flag silence: False -> caractere altera algum parametro ou representa uma pausa
-                                                #True -> caractere altera uma nota, cria evento musical
+
+            silence = False
+
             match caractereAtual.upper():
+
                 case 'A':
                     self.notaAtual = LA + self.oitavaAtual
+
                 case 'B':
                     self.notaAtual = SI + self.oitavaAtual
+
                 case 'C':
                     self.notaAtual = DO + self.oitavaAtual
+
                 case 'D':
                     self.notaAtual = RE + self.oitavaAtual
+
                 case 'E':
                     self.notaAtual = MI + self.oitavaAtual
+
                     if i + 1 < len(texto) and texto[i + 1] == 'b':
                         self.notaAtual = (MI - SEMITOM) + self.oitavaAtual
+
                 case 'F':
                     self.notaAtual = FA + self.oitavaAtual
+
                 case 'G':
                     self.notaAtual = SOL + self.oitavaAtual
+
                 case 'H':
                     self.notaAtual = (SI - SEMITOM) + self.oitavaAtual
+
+                # ------------------------
+                # Oitava
+                # ------------------------
+
                 case 'V':
-                    self.oitavaAtual -= TAMANHO_OITAVA  
+                    self.oitavaAtual -= TAMANHO_OITAVA
                     silence = True
-                case 'O'|'o'|'I'|'i'|'U'|'u':
+
+                case '?' | '.':
+                    if self.oitavaAtual + TAMANHO_OITAVA < OITAVA_MAXIMA:
+                        self.oitavaAtual += TAMANHO_OITAVA
+                    else:
+                        self.oitavaAtual = OITAVA_INICIAL
+
+                    silence = True
+
+                # ------------------------
+                # Instrumentos
+                # ------------------------
+
+                case 'O' | 'I' | 'U':
                     self.instrumentoAtual = GAITA_DE_FOLES
                     silence = True
-                case c if 'i' < c.lower() <= 'z':
-                    if 'A' <= caractereAnterior <= 'H':
-                        silence = False
-                    else:
-                        self.tempo_de_atraso += DURACAO_NOTA    
-                        silence = True
-                        indice_evento += 1       #contabiliza o silencio na ordem dos eventos de cada faixa/voz
+
                 case '!':
                     self.instrumentoAtual = HARMONICA
                     silence = True
 
-                case c if 'a' <= c <= 'h':
-                    silence = True
-                    if  c == 'b' and caractereAnterior == 'E':              #caso de Eb
-                        pass
-                    else:
-                        self.tempo_de_atraso += DURACAO_NOTA          #tem que ser o mesmo tempo que a nota fica ligada
-                        indice_evento += 1      
-                case '?'|'.':
-                    if (self.oitavaAtual + TAMANHO_OITAVA) < OITAVA_MAXIMA:             
-                        self.oitavaAtual += TAMANHO_OITAVA          
-                    else:
-                        self.oitavaAtual = OITAVA_INICIAL            
-                    silence = True
-                case '\n': 
-                    silence = True   
-                    self.faixaAtual += 1
-                    indice_evento = 0
-                    self.novaLinha()
-                case c if atraso == True and c.isdigit():
-                    valor_atraso += c
-                    silence = True
-                    if i + 1 < len(texto) and not texto[i+1].isdigit():                
-                        self.tempo_de_atraso = 480 * int(valor_atraso) 
-                        atraso = False
-                        indice_evento += int(valor_atraso)          #contabiliza o silencio na ordem dos eventos de cada faixa/voz
-                case c if c == '[':              
-                    atraso = True                       
-                    silence = True 
-                case c if c == ']':
-                    valor_atraso = ' '
-                    silence = True       
-                case c if  c == ';' or (c.isdigit() and int(c)%2 != 0):           
+                case ';':
                     self.instrumentoAtual = TUBULAR_BELLS
                     silence = True
-                case c if c.isdigit() and int(c) % 2 == 0:             
-                    self.instrumentoAtual += int(c) 
-                    silence = True
+
                 case ',':
                     self.instrumentoAtual = ORGAO
                     silence = True
-                case ' ':
-                    if (self.volumeAtual * 2) > VOLUME_MAXIMO:
-                        self.volumeAtual = VOLUME_MAXIMO
-                        silence = True
+
+                case c if c.isdigit():
+
+                    numero = int(c)
+
+                    if numero % 2 == 0:
+                        self.instrumentoAtual = numero
                     else:
-                        self.volumeAtual *= 2
-                        silence = True
-                case c if c == '>' or c == '<':
-                    if caractereAtual == '>':
-                        bpm = BPM(True, faixa_novo_bpm = self.faixaAtual, posicao_novo_bpm = indice_evento, novoBPM = ACRESCIMO_BPM)
-                    if caractereAtual == '<':
-                        bpm = BPM(False, faixa_novo_bpm = self.faixaAtual, posicao_novo_bpm = indice_evento, novoBPM = DECRESCIMO_BPM)
-                    self.lista_alteracoes.append(bpm)
+                        self.instrumentoAtual = TUBULAR_BELLS
+
                     silence = True
+
+                # ------------------------
+                # Volume
+                # ------------------------
+
+                case ' ':
+
+                    self.volumeAtual = min(
+                        self.volumeAtual * 2,
+                        VOLUME_MAXIMO
+                    )
+
+                    silence = True
+
+                # ------------------------
+                # BPM
+                # ------------------------
+
+                case '>':
+
+                    self.bpmAtual += ACRESCIMO_BPM
+                    silence = True
+
+                case '<':
+
+                    self.bpmAtual += DECRESCIMO_BPM
+                    silence = True
+
+                # ------------------------
+                # Nova linha
+                # ------------------------
+
+                case '\n':
+
+                    self.faixaAtual += 1
+                    indice_evento = 0
+
+                    self.novaLinha()
+
+                    silence = True
+
+                # ------------------------
+                # Atraso
+                # ------------------------
+
+                case '[':
+
+                    atraso = True
+                    valor_atraso = ""
+                    silence = True
+
+                case ']':
+
+                    if valor_atraso:
+
+                        self.tempo_de_atraso = DURACAO_NOTA * int(valor_atraso)
+                        indice_evento += int(valor_atraso)
+
+                    atraso = False
+                    silence = True
+
+                case c if atraso and c.isdigit():
+
+                    valor_atraso += c
+                    silence = True
+
+                # ------------------------
+                # Letras sem nota
+                # ------------------------
+
+                case c if 'i' < c.lower() <= 'z':
+
+                    self.tempo_de_atraso += DURACAO_NOTA
+                    indice_evento += 1
+                    silence = True
+
+                case c if 'a' <= c <= 'h':
+
+                    if not (c == 'b' and caractereAnterior == 'E'):
+                        self.tempo_de_atraso += DURACAO_NOTA
+                        indice_evento += 1
+
+                    silence = True
+
                 case _:
-                    if 'A' <= caractereAnterior <= 'H':
-                        silence = False
-                    else:
-                        self.tempo_de_atraso += DURACAO_NOTA    
-                        silence = True
-                        indice_evento += 1  
-            caractereAnterior = caractereAtual 
+
+                    self.tempo_de_atraso += DURACAO_NOTA
+                    indice_evento += 1
+                    silence = True
+
+            caractereAnterior = caractereAtual
+
             self.numero_faixas = self.faixaAtual + 1
-            
-            if (silence == False ):    #cria evento na lista apenas no caso de mudança de nota 
-                indice_evento += 1      #contabiliza as notas na ordem dos eventos de cada faixa/voz
-                evento = MusicEvent(nota = self.notaAtual, instrumento=self.instrumentoAtual,volume= self.volumeAtual, oitava=self.oitavaAtual, tempo_de_atraso=self.tempo_de_atraso, bpm= self.bpmAtual, faixa = self.faixaAtual, indice = indice_evento)
-                self.lista_de_eventos.append(evento)  
-                self.tempo_de_atraso = 0           #retira o silencio entre notas 
-        self.altera_bpm(bpm)
-        return self.lista_de_eventos    
 
+                        # ------------------------------------------------------
+            # Cria o evento musical
+            # ------------------------------------------------------
 
-    # ──────────────────────────────────────────────────────────────────────
-    # métodos privados
-    # ──────────────────────────────────────────────────────────────────────
-        
-    def altera_bpm(self, bpm):
-        """ #cria uma lista de alterações de BPM"""
+            if not silence:
 
-        for alteracao in self.lista_alteracoes:
-            for evento in self.lista_de_eventos:
-                if (evento.faixa < alteracao.faixa_novo_bpm or evento.faixa == alteracao.faixa_novo_bpm) and (evento.indice > alteracao.posicao_novo_bpm):
-                        evento.bpm = evento.bpm + alteracao.novoBPM 
-                if evento.faixa > alteracao.faixa_novo_bpm and (evento.indice >alteracao.posicao_novo_bpm):
-                        evento.bpm = evento.bpm + alteracao.novoBPM 
-                        
+                indice_evento += 1
+
+                evento = MusicEvent(
+                    nota=self.notaAtual,
+                    instrumento=self.instrumentoAtual,
+                    oitava=self.oitavaAtual,
+                    volume=self.volumeAtual,
+                    tempo_de_atraso=self.tempo_de_atraso,
+                    bpm=self.bpmAtual,
+                    faixa=self.faixaAtual,
+                    indice=indice_evento
+                )
+
+                self.lista_de_eventos.append(evento)
+
+                # zera o atraso após tocar a nota
+                self.tempo_de_atraso = 0
+
+        return self.lista_de_eventos
+
+    # ------------------------------------------------------
+    # Inicializa uma nova linha/faixa
+    # ------------------------------------------------------
+
     def novaLinha(self):
-        """
-        Inicializa os parâmetros da voz correspondente à faixa atual.
-        As vozes são reutilizadas ciclicamente.
-        """
+
         resto = self.faixaAtual % CICLO_VOZES
 
         voz = self.user_settings.vozes[resto]
@@ -232,3 +349,5 @@ class MusicInterpreter:
         self.instrumentoAtual = voz.instrumento
         self.volumeAtual = voz.volume
         self.oitavaAtual = voz.oitava
+
+        self.tempo_de_atraso = voz.atraso

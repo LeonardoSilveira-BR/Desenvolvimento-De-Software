@@ -1,5 +1,6 @@
 import time
 import subprocess
+
 # importações com tratamento de erro para permitir rodar os testes
 # sem precisar das bibliotecas instaladas no ambiente de teste
 try:
@@ -17,50 +18,89 @@ DURACAO_NOTA_TICKS = 480
 
 class MusicPlayer:
     """
-    controla a reprodução com pygame (play, pause, stop, restart).
+    Controla a reprodução do arquivo MIDI utilizando o TiMidity.
     """
 
     def __init__(self, settings=None):
-        self._pausado        = False  # true quando a reprodução está pausada
-        self._tocando        = False  # true quando a reprodução está ativa
-        self._processo       = None
+        self._pausado = False
+        self._tocando = False
+        self._processo = None
+
     # ──────────────────────────────────────────────────────────────────────
     # controles de reprodução
     # ──────────────────────────────────────────────────────────────────────
 
     def play(self) -> None:
+        """
+        Inicia ou retoma a reprodução.
+        """
 
         if self._tocando:
             print("já está tocando.")
-        return
+            return
 
-    try:
+        try:
             self._processo = subprocess.Popen(["timidity", ARQUIVO_TEMP])
             self._tocando = True
             self._pausado = False
             print("reprodução iniciada.")
-    except Exception as e:
-        print(f"erro ao tocar o arquivo: {e}")
+        except Exception as e:
+            print(f"erro ao tocar o arquivo: {e}")
+
+    def pause(self) -> None:
+        """
+        Pausa a reprodução.
+        """
+
+        if self._processo is None:
+            print("não está tocando.")
+            return
+
+        self._processo.send_signal(subprocess.signal.SIGSTOP)
+        self._pausado = True
+        self._tocando = False
+        print("reprodução pausada.")
 
     def stop(self) -> None:
+        """
+        Para a reprodução.
+        """
 
         if self._processo is not None:
             self._processo.terminate()
             self._processo.wait()
             self._processo = None
 
-            self._tocando = False
-            self._pausado = False
-    print("reprodução parada.")
+        self._tocando = False
+        self._pausado = False
+        print("reprodução parada.")
 
-    def pause(self):
-        print("Pausa não suportada no Linux usando timidity.")
+    def restart(self) -> None:
+        """
+        Reinicia a reprodução.
+        """
 
-    def restart(self):
         self.stop()
         self.play()
 
-    def esta_tocando(self):
+    def resume(self) -> None:
+        """
+        Retoma a reprodução após uma pausa.
+        """
+
+        if self._processo is None:
+            self.play()
+            return
+
+        self._processo.send_signal(subprocess.signal.SIGCONT)
+        self._tocando = True
+        self._pausado = False
+        print("reprodução retomada.")
+
+    def esta_tocando(self) -> bool:
+        """
+        Retorna True se a música estiver tocando.
+        """
 
         if self._processo is None:
             return False
@@ -69,16 +109,15 @@ class MusicPlayer:
 
     def aguardar_fim(self) -> None:
         """
-        bloqueia até a música terminar por completo.
-        útil em scripts simples que não têm interface gráfica.
+        Aguarda o término da reprodução.
         """
+
         while self.esta_tocando():
             time.sleep(0.5)
 
-    def encerrar(self):
+    def encerrar(self) -> None:
+        """
+        Encerra o player.
+        """
+
         self.stop()
-
-    # ──────────────────────────────────────────────────────────────────────
-    # métodos privados
-    # ──────────────────────────────────────────────────────────────────────
-
