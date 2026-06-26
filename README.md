@@ -10,7 +10,7 @@ Além da API desenvolvida em Flask, o projeto possui uma interface Web para faci
 
 ---
 
-# Arquiterura do Projeto
+# Arquitetura do Projeto
 
 ```
 Trabalho_Final
