@@ -1,150 +1,181 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gerador de Música</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Música</title>
 
-<link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css">
 
-<!-- Ícones -->
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
+
 <body>
 
 <div class="container">
 
-<header>
-<h2>NOME DO PROGRAMA</h2>
-</header>
+    <header>
+        <h2>NOME DO PROGRAMA</h2>
+    </header>
 
-<div class="top">
+    <div class="top">
 
-<button id="help">AJUDA</button>
+        <button id="help">
+            AJUDA
+        </button>
 
-<div class="texto">
+        <div class="texto">
 
-<label>DIGITE/INSIRA O TEXTO:</label>
+            <label for="texto">
+                DIGITE/INSIRA O TEXTO:
+            </label>
 
-<textarea
-placeholder="CAIXA DE TEXTO / ANEXO DE ARQUIVO"></textarea>
+            <textarea
+                id="texto"
+                placeholder="Digite o texto aqui ou anexe um arquivo TXT">
+            </textarea>
 
-<input type="file" id="arquivo" hidden>
+            <input
+                type="file"
+                id="arquivo"
+                accept=".txt"
+                hidden>
 
-<button onclick="document.getElementById('arquivo').click()">
-ANEXAR ARQUIVO
-</button>
+            <button id="anexar">
+                ANEXAR ARQUIVO
+            </button>
 
-</div>
+        </div>
 
-</div>
+    </div>
 
-<div class="config">
+    <div class="config">
 
-<div class="campo">
+        <div class="campo">
 
-<label>INSTRUMENTO</label>
+            <label>INSTRUMENTO</label>
 
-<select id="instrumento">
-<option>Piano</option>
-<option>Violão</option>
-<option>Violino</option>
-<option>Guitarra</option>
-<option>Baixo</option>
-<option>Bateria</option>
-</select>
+            <select id="instrumento">
 
-</div>
+                <option value="Piano">Piano</option>
 
-<div class="campo">
+                <option value="Violao">Violão</option>
 
-<label>BPM</label>
+                <option value="Violino">Violino</option>
 
-<select id="bpm">
-<option>60</option>
-<option>80</option>
-<option selected>120</option>
-<option>140</option>
-<option>180</option>
-</select>
+                <option value="Guitarra">Guitarra</option>
 
-</div>
+                <option value="Baixo">Baixo</option>
 
-<div class="campo">
+                <option value="Bateria">Bateria</option>
 
-<label>OITAVA</label>
+            </select>
 
-<select id="oitava">
-<option>2</option>
-<option>3</option>
-<option selected>4</option>
-<option>5</option>
-<option>6</option>
-</select>
+        </div>
 
-</div>
+        <div class="campo">
 
-<div class="campo">
+            <label>BPM</label>
 
-<label>VOLUME</label>
+            <select id="bpm">
 
-<input type="range"
-min="0"
-max="100"
-value="80"
-id="volume">
+                <option value="60">60</option>
 
-<span id="valorVolume">80%</span>
+                <option value="80">80</option>
 
-</div>
+                <option value="120" selected>120</option>
 
-</div>
+                <option value="140">140</option>
 
-<div class="gerar">
+                <option value="180">180</option>
 
-<button id="gerar">
-GERAR MÚSICA
-</button>
+            </select>
 
-</div>
+        </div>
 
-<div class="player">
+        <div class="campo">
 
-<button id="stop">
-<i class="fa-solid fa-stop"></i>
-</button>
+            <label>OITAVA</label>
 
-<button id="play">
-<i class="fa-solid fa-play"></i>
-</button>
+            <select id="oitava">
 
-<button id="pause">
-<i class="fa-solid fa-pause"></i>
-</button>
+                <option value="2">2</option>
 
-<button id="resume">
-<i class="fa-solid fa-rotate-right"></i>
-</button>
+                <option value="3">3</option>
 
-</div>
+                <option value="4" selected>4</option>
 
-<div class="acoes">
+                <option value="5">5</option>
 
-<button id="salvar">
-SALVAR
-</button>
+                <option value="6">6</option>
 
-<button id="reiniciar">
-RETURN / REINICIAR
-</button>
+            </select>
 
-<button id="sair">
-SAIR
-</button>
+        </div>
 
-</div>
+        <div class="campo">
+
+            <label>VOLUME</label>
+
+            <input
+                type="range"
+                id="volume"
+                min="0"
+                max="100"
+                value="80">
+
+            <span id="valorVolume">
+                80%
+            </span>
+
+        </div>
+
+    </div>
+
+    <div class="gerar">
+
+        <button id="gerar">
+            GERAR MÚSICA
+        </button>
+
+    </div>
+
+    <div class="player">
+
+        <button id="stop">
+            <i class="fa-solid fa-stop"></i>
+        </button>
+
+        <button id="play">
+            <i class="fa-solid fa-play"></i>
+        </button>
+
+        <button id="pause">
+            <i class="fa-solid fa-pause"></i>
+        </button>
+
+        <button id="resume">
+            <i class="fa-solid fa-rotate-right"></i>
+        </button>
+
+    </div>
+
+    <div class="acoes">
+
+        <button id="salvar">
+            SALVAR
+        </button>
+
+        <button id="reiniciar">
+            RETURN / REINICIAR
+        </button>
+
+        <button id="sair">
+            SAIR
+        </button>
+
+    </div>
 
 </div>
 
