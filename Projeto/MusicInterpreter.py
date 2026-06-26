@@ -58,7 +58,7 @@ class BPM:
 class MusicInterpreter:
     """  classe responsável por converter os caracteres do texto em eventos musicais """
 
-    def __init__(self, user_settings):
+    def __init__(self, user_settings=None):
         self.notaAtual = 0
         self.instrumentoAtual = 0
         self.volumeAtual = 0
@@ -70,7 +70,10 @@ class MusicInterpreter:
         self.lista_de_eventos: list[MusicEvent] = []
         self.lista_alteracoes: list[BPM] = []
          # settings é opcional — se não for passado, usa os valores dos eventos diretamente
-        self.user_settings = user_settings 
+        if user_settings is None:
+            self.user_settings = Settings()
+        else:
+            self.user_settings = user_settings
 
     # ──────────────────────────────────────────────────────────────────────
     # 
@@ -81,8 +84,9 @@ class MusicInterpreter:
         Converte os caracteres do texto para eventos musicais seguindo o mapeamento estabelecido
         retorna todos eventos em uma lista_de_eventos/partitura
         """
-        escolha = Settings()       
-        self.novaLinha(escolha)  
+        
+        self.novaLinha()
+
         indice_evento = 0  
         caractereAnterior = 0
         valor_atraso = " "
@@ -145,7 +149,7 @@ class MusicInterpreter:
                     silence = True   
                     self.faixaAtual += 1
                     indice_evento = 0
-                    self.novaLinha(escolha)
+                    self.novaLinha()
                 case c if atraso == True and c.isdigit():
                     valor_atraso += c
                     silence = True
@@ -216,13 +220,15 @@ class MusicInterpreter:
                         evento.bpm = evento.bpm + alteracao.novoBPM 
                         
     def novaLinha(self):
+        """
+        Inicializa os parâmetros da voz correspondente à faixa atual.
+        As vozes são reutilizadas ciclicamente.
+        """
+        resto = self.faixaAtual % CICLO_VOZES
 
-    resto = self.faixaAtual % CICLO_VOZES
+        voz = self.user_settings.vozes[resto]
 
-    voz = self.user_settings.vozes[resto]
-
-    self.bpmAtual = self.user_settings.bpmAtual
-
-    self.instrumentoAtual = voz.instrumento
-    self.volumeAtual = voz.volume
-    self.oitavaAtual = voz.oitava
+        self.bpmAtual = self.user_settings.bpmAtual
+        self.instrumentoAtual = voz.instrumento
+        self.volumeAtual = voz.volume
+        self.oitavaAtual = voz.oitava
