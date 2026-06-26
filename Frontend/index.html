@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Música</title>
+
+<link rel="stylesheet" href="style.css">
+
+<!-- Ícones -->
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+</head>
+<body>
+
+<div class="container">
+
+<header>
+<h2>NOME DO PROGRAMA</h2>
+</header>
+
+<div class="top">
+
+<button id="help">AJUDA</button>
+
+<div class="texto">
+
+<label>DIGITE/INSIRA O TEXTO:</label>
+
+<textarea
+placeholder="CAIXA DE TEXTO / ANEXO DE ARQUIVO"></textarea>
+
+<input type="file" id="arquivo" hidden>
+
+<button onclick="document.getElementById('arquivo').click()">
+ANEXAR ARQUIVO
+</button>
+
+</div>
+
+</div>
+
+<div class="config">
+
+<div class="campo">
+
+<label>INSTRUMENTO</label>
+
+<select id="instrumento">
+<option>Piano</option>
+<option>Violão</option>
+<option>Violino</option>
+<option>Guitarra</option>
+<option>Baixo</option>
+<option>Bateria</option>
+</select>
+
+</div>
+
+<div class="campo">
+
+<label>BPM</label>
+
+<select id="bpm">
+<option>60</option>
+<option>80</option>
+<option selected>120</option>
+<option>140</option>
+<option>180</option>
+</select>
+
+</div>
+
+<div class="campo">
+
+<label>OITAVA</label>
+
+<select id="oitava">
+<option>2</option>
+<option>3</option>
+<option selected>4</option>
+<option>5</option>
+<option>6</option>
+</select>
+
+</div>
+
+<div class="campo">
+
+<label>VOLUME</label>
+
+<input type="range"
+min="0"
+max="100"
+value="80"
+id="volume">
+
+<span id="valorVolume">80%</span>
+
+</div>
+
+</div>
+
+<div class="gerar">
+
+<button id="gerar">
+GERAR MÚSICA
+</button>
+
+</div>
+
+<div class="player">
+
+<button id="stop">
+<i class="fa-solid fa-stop"></i>
+</button>
+
+<button id="play">
+<i class="fa-solid fa-play"></i>
+</button>
+
+<button id="pause">
+<i class="fa-solid fa-pause"></i>
+</button>
+
+<button id="resume">
+<i class="fa-solid fa-rotate-right"></i>
+</button>
+
+</div>
+
+<div class="acoes">
+
+<button id="salvar">
+SALVAR
+</button>
+
+<button id="reiniciar">
+RETURN / REINICIAR
+</button>
+
+<button id="sair">
+SAIR
+</button>
+
+</div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
