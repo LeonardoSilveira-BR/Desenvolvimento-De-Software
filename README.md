@@ -2,150 +2,218 @@
 
 ## Sobre o Projeto
 
-Este projeto foi desenvolvido para a disciplina de **Desenvolvimento de Software**, ministrada pelo **Prof. Pimenta**, no semestre **2026/1**.
+Este projeto foi desenvolvido para a disciplina **Desenvolvimento de Software**, ministrada pelo **Prof. Pimenta**, durante o semestre **2026/1**.
 
-O sistema permite converter textos em música por meio de regras de interpretação musical. O texto é analisado caractere por caractere, transformado em eventos musicais e posteriormente convertido para um arquivo MIDI que pode ser reproduzido ou salvo pelo usuário.
+O sistema realiza a conversão de textos em música. O texto informado pelo usuário é interpretado caractere por caractere, transformado em eventos musicais e posteriormente convertido para um arquivo **MIDI**, que pode ser reproduzido ou salvo.
 
----
-
-## Funcionalidades
-
-- Carregar textos a partir de arquivos `.txt`;
-- Inserir textos manualmente;
-- Interpretar textos como eventos musicais;
-- Configurar BPM, volume e instrumentos;
-- Gerar arquivos MIDI;
-- Reproduzir, pausar e parar a música gerada;
-- Salvar o arquivo MIDI gerado.
+Além da API desenvolvida em Flask, o projeto possui uma interface Web para facilitar a utilização das funcionalidades.
 
 ---
 
-## Estrutura do Projeto
+# Arquiterura do Projeto
 
-| Arquivo | Responsabilidade |
-|----------|------------------|
-| `Text.py` | Leitura e armazenamento de textos |
-| `Voice.py` | Representação das vozes musicais |
-| `Settings.py` | Configurações de BPM, volume e instrumentos |
-| `MusicInterpreter.py` | Conversão do texto em eventos musicais |
-| `MusicGenerator.py` | Geração do arquivo MIDI |
-| `MusicPlayer.py` | Reprodução do arquivo MIDI |
-| `SaveAudio.py` | Salvamento do arquivo MIDI |
-| `API.py` | Disponibilização das funcionalidades através de uma API REST |
+```
+Trabalho_Final
+   |
+   ├──   Projeto/
+   |         ├── API.py
+   |         ├── MusicGenerator.py
+   |         ├── MusicInterpreter.py
+   |         ├── MusicPlayer.py
+   |         ├── SaveAudio.py
+   |         ├── Settings.py
+   |         ├── Text.py
+   |         ├── Voice.py
+   |         ├── faixa_gerada.mid
+   ├── Frontend/
+   |         ├── index.html
+   |         ├── style.css
+   |         └── script.js
+```
 
 ---
 
-## Tecnologias Utilizadas
+# Tecnologias Utilizadas
 
 - Python 3
 - Flask
 - Flask-CORS
 - Flasgger (Swagger)
 - Mido
-- Pygame
 - Tkinter
+- HTML5
+- CSS3
+- JavaScript
 
 ---
 
-## Como Executar
+# Pré-requisitos
 
-### Instalar dependências
+Antes de executar o projeto é necessário possuir instalado:
+
+- Python 3.10 ou superior;
+- pip;
+- Timidity (para reprodução MIDI em Linux).
+
+## Instalação do Timidity (Linux)
+
+Ubuntu/Debian:
+
+```bash
+sudo apt update
+sudo apt install timidity
+```
+
+Verifique a instalação:
+
+```bash
+timidity --version
+```
+
+---
+
+# Instalação das Dependências
+
+Clone o repositório:
+
+```bash
+git clone <url-do-repositório>
+```
+
+Entre na pasta do projeto:
+
+```bash
+cd Desenvolvimento-De-Software/Projeto
+```
+
+Instale as dependências:
 
 ```bash
 pip install flask
 pip install flask-cors
 pip install flasgger
-pip install pygame
 pip install mido
 ```
 
-### Executar a API
+Ou:
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+# Como Executar
+
+Inicie a API:
 
 ```bash
 python API.py
 ```
 
-A aplicação ficará disponível em:
+A API ficará disponível em:
 
-```text
+```
 http://localhost:5000
 ```
 
----
+Em seguida, abra o arquivo:
 
-## Principais Endpoints
-
-### Texto
-
-```http
-GET /Text
-PUT /Text
-POST /Text/Load
+```
+Frontend/index.html
 ```
 
-### Configurações
-
-```http
-GET /Settings
-PUT /Settings
-```
-
-### Vozes
-
-```http
-GET /Voice
-GET /Voice/{id}
-PUT /Voice/{id}
-```
-
-### Interpretação Musical
-
-```http
-POST /MusicInterpreter/Parse
-GET /MusicInterpreter/Events
-```
-
-### Geração MIDI
-
-```http
-POST /MusicGenerator/Generate
-GET /MusicGenerator/Download
-```
-
-### Reprodução
-
-```http
-POST /MusicPlayer/Play
-POST /MusicPlayer/Pause
-POST /MusicPlayer/Resume
-POST /MusicPlayer/Stop
-POST /MusicPlayer/Restart
-POST /MusicPlayer/End
-GET  /MusicPlayer/Status
-```
+em um navegador.
 
 ---
 
-## Fluxo de Funcionamento
+# Fluxo de Funcionamento
 
-```text
+```
 Texto
-  ↓
+   │
+   ▼
 MusicInterpreter
-  ↓
+   │
+   ▼
 Eventos Musicais
-  ↓
+   │
+   ▼
 MusicGenerator
-  ↓
+   │
+   ▼
 Arquivo MIDI
-  ↓
+   │
+   ▼
 MusicPlayer
 ```
 
 ---
 
-## Disciplina
+# Endpoints da API
 
-**Desenvolvimento de Software**  
-Professor Pimenta  
-Semestre 2026/1
+## Texto
+
+| Método | Endpoint | Descrição |
+|---------|----------|-----------|
+| GET | /Text | Retorna o texto atual |
+| PUT | /Text | Atualiza o texto |
+| DELETE | /Text | Limpa o texto |
+| POST | /Text/Load | Carrega arquivo TXT |
+
+---
+
+## Configurações
+
+| Método | Endpoint |
+|---------|----------|
+| GET | /Settings |
+| PUT | /Settings |
+
+---
+
+## Vozes
+
+| Método | Endpoint |
+|---------|----------|
+| GET | /Voice |
+| GET | /Voice/{id} |
+| PUT | /Voice/{id} |
+
+---
+
+## Interpretação Musical
+
+| Método | Endpoint |
+|---------|----------|
+| POST | /MusicInterpreter/Parse |
+| GET | /MusicInterpreter/Events |
+
+---
+
+## Geração MIDI
+
+| Método | Endpoint |
+|---------|----------|
+| POST | /MusicGenerator/Generate |
+| GET | /MusicGenerator/Download |
+
+---
+
+## Reprodução
+
+| Método | Endpoint |
+|---------|----------|
+| POST | /MusicPlayer/Play |
+| POST | /MusicPlayer/Pause |
+| POST | /MusicPlayer/Resume |
+| POST | /MusicPlayer/Stop |
+| POST | /MusicPlayer/Restart |
+| POST | /MusicPlayer/End |
+| GET | /MusicPlayer/Status |
+
+---
+
+**Professor:** Pimenta
+
+**Semestre:** 2026/1
