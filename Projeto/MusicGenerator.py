@@ -28,8 +28,8 @@ class MusicGenerator:
         interpretador = MusicInterpreter(user_settings)
         self.partitura = interpretador.converteCaractere(texto)
         if not self.partitura:
-            print("erro: lista de eventos vazia. interprete o texto primeiro.")
-            return
+            raise ValueError("Nenhum evento musical foi gerado.")
+            return  
     # ──────────────────────────────────────────────────────────────────────
     # geração do midi
     # ──────────────────────────────────────────────────────────────────────

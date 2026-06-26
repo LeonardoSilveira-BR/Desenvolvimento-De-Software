@@ -92,7 +92,7 @@ class MusicInterpreter:
         for i, caractereAtual in enumerate(texto):
             silence = False        #flag silence: False -> caractere altera algum parametro ou representa uma pausa
                                                 #True -> caractere altera uma nota, cria evento musical
-            match caractereAtual:
+            match caractereAtual.upper():
                 case 'A':
                     self.notaAtual = LA + self.oitavaAtual
                 case 'B':
@@ -215,40 +215,14 @@ class MusicInterpreter:
                 if evento.faixa > alteracao.faixa_novo_bpm and (evento.indice >alteracao.posicao_novo_bpm):
                         evento.bpm = evento.bpm + alteracao.novoBPM 
                         
-    def novaLinha(self, settings = None):   
-        """  configura os parametros iniciais de cada linha
-        """
+    def novaLinha(self):
 
-        resto = self.faixaAtual % CICLO_VOZES      #resto da divisão da linha por 4, para manter as vozes nos 4 casos
-        if self.user_settings:
-            voz = self.user_settings.vozes[resto]             
-        self.bpmAtual = self.user_settings.bpmAtual         #getBPM()  pega bpm estabelecido no inicio, pelo usuario  FALTA
-        match resto:
-            case 0:    
-                self.oitavaAtual = OITAVA_INICIAL
-                self.volumeAtual = VOLUME_INICIAL           
-                if settings:
-                    self.instrumentoAtual =  voz.instrumento
-                else: 
-                    self.instrumentoAtual = PIANO
-            case 1:
-                self.oitavaAtual -= TAMANHO_OITAVA
-                self.volumeAtual -= DECRESCIMO_VOLUME
-                if settings:                   
-                    self.instrumentoAtual = voz.instrumento
-                else: 
-                    self.instrumentoAtual = ORGAO             
-            case 2:
-                self.oitavaAtual -= TAMANHO_OITAVA
-                self.volumeAtual -= DECRESCIMO_VOLUME
-                if settings:
-                    self.instrumentoAtual = voz.instrumento
-                else: 
-                    self.instrumentoAtual = CRAVO      
-            case 3:
-                self.oitavaAtual -= TAMANHO_OITAVA
-                self.volumeAtual -= DECRESCIMO_VOLUME
-                if settings:
-                    self.instrumentoAtual = voz.instrumento
-                else: 
-                    self.instrumentoAtual = FAGOTE  
+    resto = self.faixaAtual % CICLO_VOZES
+
+    voz = self.user_settings.vozes[resto]
+
+    self.bpmAtual = self.user_settings.bpmAtual
+
+    self.instrumentoAtual = voz.instrumento
+    self.volumeAtual = voz.volume
+    self.oitavaAtual = voz.oitava
